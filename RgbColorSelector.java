@@ -3,6 +3,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -19,11 +24,10 @@ import java.io.ObjectOutputStream;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
+import java.io.File;
 
 public class RgbColorSelector implements Serializable {
-// 	private int rgb.red = 0;
-// 	private int rgb.green = 0;
-// 	private int rgb.blue = 0;
+
 	Rgb rgb; // color that holds r, g and b values
 	private JTextField fieldR;
 	private JTextField fieldG;
@@ -33,8 +37,8 @@ public class RgbColorSelector implements Serializable {
 	private JSlider sliderG;
 	private JSlider sliderB;
 	private JLabel errorOutput;
+	private JFrame frame;
 
-	
 	public static void main (String[] args) {
 		RgbColorSelector gui = new RgbColorSelector();
 		gui.go();
@@ -42,26 +46,30 @@ public class RgbColorSelector implements Serializable {
 
 	private void go() {
 		rgb = new Rgb();
-		JFrame frame = new JFrame("RGB Color Selector");
+		frame = new JFrame("RGB Color Selector");
 		
 		// 0. contentPanel - ueberpanel, containes other panels
 		JPanel contentPanel = new JPanel();
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+
+		// 1. menu bar
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menuSave = new JMenu("Save");
+		JMenuItem saveObjectMenuItem = new JMenuItem("Save as object (.ser)");
+		saveObjectMenuItem.addActionListener(new SaveObjectListener());
+		JMenuItem saveTextMenuItem = new JMenuItem("Save as text (.txt)");
+		menuSave.add(saveObjectMenuItem);
+		menuSave.add(saveTextMenuItem);
 		
-		// 1. buttonPanel - panel with buttons
-		JPanel buttonPanel = new JPanel();
-		JButton saveObject = new JButton("Save object");
-		JButton loadObject = new JButton("Load object");
-		JButton saveText = new JButton("Save text");
-		JButton loadText = new JButton("Load text");
-		saveObject.addActionListener(new SaveObjectListener());
-		loadObject.addActionListener(new LoadObjectListener());
-// 		saveText.addActionListener(new SaveTextListener());
-// 		loadText.addActionListener(new LoadTextListener());
-		buttonPanel.add(saveObject);
-		buttonPanel.add(saveText);
-		buttonPanel.add(loadObject);
-		buttonPanel.add(loadText);
+		JMenu menuOpen = new JMenu("Open");
+		JMenuItem openObjectMenuItem = new JMenuItem("Open .ser file");
+		openObjectMenuItem.addActionListener(new OpenObjectListener());
+		JMenuItem openTextMenuItem = new JMenuItem("Open .txt file");
+		menuOpen.add(openObjectMenuItem);
+		menuOpen.add(openTextMenuItem);
+		
+		menuBar.add(menuSave);
+		menuBar.add(menuOpen);
 		
 		// 2. colorPanel - panel showing the color
 		colorPanel = new JPanel();
@@ -112,7 +120,7 @@ public class RgbColorSelector implements Serializable {
 		errorOutput.setForeground(Color.RED);
 		
 		// add panels 1, 2, 3, 4 to contentPanel 
-		contentPanel.add(buttonPanel);
+// 		contentPanel.add(buttonPanel);
 		contentPanel.add(colorPanel);
 		contentPanel.add(panelR);
 		contentPanel.add(panelG);
@@ -120,6 +128,7 @@ public class RgbColorSelector implements Serializable {
 		contentPanel.add(errorOutput);
 		
 		frame.getContentPane().add(contentPanel);
+		frame.setJMenuBar(menuBar);
 		frame.setResizable(false);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -185,40 +194,37 @@ public class RgbColorSelector implements Serializable {
 		}
 	}
 	
-	class SaveObjectListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
+	public class SaveObjectListener implements ActionListener {
+		public void actionPerformed(ActionEvent ev) {
+			JFileChooser fileSave = new JFileChooser();
+			fileSave.showSaveDialog(frame);
+			File file = fileSave.getSelectedFile();
 			try {
-				ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream("RGB.ser"));
-				os.writeObject(rgb);
-				os.close();
-				System.out.println("Saving was succesfull");
+				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+				oos.writeObject(rgb);
+				oos.close();
 			} catch(IOException ex) {
 				ex.printStackTrace();
 			}
 		}
 	}
-	
-	class LoadObjectListener implements ActionListener {
+
+	class OpenObjectListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			JFileChooser fileOpen = new JFileChooser();
+			fileOpen.showOpenDialog(frame);
+			File file = fileOpen.getSelectedFile();
+			
 			try {
-				ObjectInputStream is = new ObjectInputStream(new FileInputStream("RGB.ser"));
-				rgb = (Rgb) is.readObject();
-				System.out.println("Restoring was succesfull");
-				System.out.println("R: " + rgb.red);
-				System.out.println("G: " + rgb.green);
-				System.out.println("B: " + rgb.blue);
-				
+				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+				rgb = (Rgb) ois.readObject();
 				fieldR.setText(Integer.toString(rgb.red));
 				fieldG.setText(Integer.toString(rgb.green));
 				fieldB.setText(Integer.toString(rgb.blue));
-				
 				sliderR.setValue(rgb.red);
 				sliderG.setValue(rgb.green);
 				sliderB.setValue(rgb.blue);
-				
 				colorPanel.setBackground(new Color(rgb.red, rgb.green, rgb.blue));
-// 				FieldListener fl = new FieldListener();
-// 				fl.actionPerformed(new ActionEvent (gui.fieldG, ActionEvent.ACTION_PERFORMED, null));
 			} catch(Exception ex) {
 				ex.printStackTrace();
 			}
