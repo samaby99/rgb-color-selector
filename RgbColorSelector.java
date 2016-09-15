@@ -149,17 +149,19 @@ public class RgbColorSelector implements Serializable {
 	class SliderListener implements ChangeListener {
 		public void stateChanged(ChangeEvent ev) {
 			JSlider source = (JSlider)ev.getSource();
+			int value = source.getValue();
 			if(source == sliderR) {
-				rgb.red = source.getValue();
-				fieldR.setText(Integer.toString(rgb.red));
+				rgb.setRed(value);
+				fieldR.setText(Integer.toString(value));
 			} else if(ev.getSource() == sliderG) {
-				rgb.green = source.getValue();
-				fieldG.setText(Integer.toString(rgb.green));
+				rgb.setGreen(value);
+				fieldG.setText(Integer.toString(value));
 			} else if(ev.getSource() == sliderB) {
-				rgb.blue = source.getValue();
-				fieldB.setText(Integer.toString(rgb.blue));
+				rgb.setBlue(value);
+				fieldB.setText(Integer.toString(value));
 			}
-			colorPanel.setBackground(new Color(rgb.red, rgb.green, rgb.blue));
+			colorPanel.setBackground(
+					new Color(rgb.getRed(), rgb.getGreen(), rgb.getBlue()));
 			resetAfterError();
 		}
 	}
@@ -167,21 +169,23 @@ public class RgbColorSelector implements Serializable {
 	class FieldListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
 			JTextField source = (JTextField)ev.getSource();
-			String input = source.getText();
-			// check whether input is an integer between 0 and 255
-			if(input.matches("^\\d{1,3}$") && Integer.parseInt(input) >= 0 
-					&& Integer.parseInt(input) < 255) {
+			String textVal = source.getText();
+			// check whether textVal is an integer between 0 and 255
+			if(textVal.matches("^\\d{1,3}$") && Integer.parseInt(textVal) >= 0 
+					&& Integer.parseInt(textVal) < 255) {
+				int intVal = Integer.parseInt(textVal);
 				if(source == fieldR) {
-					rgb.red = Integer.parseInt(input);
-					sliderR.setValue(rgb.red);
+					rgb.setRed(intVal);
+					sliderR.setValue(intVal);
 				} else if(source == fieldG) {
-					rgb.green = Integer.parseInt(input);
-					sliderG.setValue(rgb.green);
+					rgb.setGreen(intVal);
+					sliderG.setValue(intVal);
 				} else if(source == fieldB) {
-					rgb.blue = Integer.parseInt(input);
-					sliderB.setValue(rgb.blue);
+					rgb.setBlue(intVal);
+					sliderB.setValue(intVal);
 				}
-				colorPanel.setBackground(new Color(rgb.red, rgb.green, rgb.blue));
+				colorPanel.setBackground(
+						new Color(rgb.getRed(), rgb.getGreen(), rgb.getBlue()));
 				resetAfterError();
 			} else { // if entered value not an integer in 0...255 range - reset it to 0
 				source.setText("0");
@@ -200,84 +204,91 @@ public class RgbColorSelector implements Serializable {
 	
 	public class SaveObjectListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
-			JFileChooser fileSave = new JFileChooser();
-			fileSave.showSaveDialog(frame);
-			File file = fileSave.getSelectedFile();
-			try {
-				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-				oos.writeObject(rgb);
-				oos.close();
-			} catch(IOException ex) {
-				ex.printStackTrace();
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showSaveDialog(frame);
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				try {
+					ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+					oos.writeObject(rgb);
+					oos.close();
+				} catch(IOException ex) {
+					ex.printStackTrace();
+				}
 			}
 		}
 	}
 
 	class OpenObjectListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
-			JFileChooser fileOpen = new JFileChooser();
-			fileOpen.showOpenDialog(frame);
-			File file = fileOpen.getSelectedFile();
-			
-			try {
-				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-				rgb = (Rgb) ois.readObject();
-				setNewValues();
-			} catch(Exception ex) {
-				ex.printStackTrace();
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showOpenDialog(frame);
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				try {
+					ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+					rgb = (Rgb) ois.readObject();
+					setNewValues();
+				} catch(Exception ex) {
+					ex.printStackTrace();
+				}
 			}
 		}
 	}
 	
 	class SaveTextListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
-			JFileChooser fileSave = new JFileChooser();
-			fileSave.showSaveDialog(frame);
-			File file = fileSave.getSelectedFile();
-			try {
-				BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-				writer.write("R,G,B\n");
-				writer.write(rgb.red + "," + rgb.green + "," + rgb.blue);
-				writer.close();
-			} catch(IOException ex) {
-				ex.printStackTrace();
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showSaveDialog(frame);
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				try {
+					BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+					writer.write("R,G,B\n");
+					writer.write(rgb.getRed() + "," + rgb.getGreen() + "," + rgb.getBlue());
+					writer.close();
+				} catch(IOException ex) {
+					ex.printStackTrace();
+				}
 			}
 		}
 	}
 	
 	class OpenTextListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
-			JFileChooser fileOpen = new JFileChooser();
-			fileOpen.showSaveDialog(frame);
-			File file = fileOpen.getSelectedFile();
-			try {
-				BufferedReader reader = new BufferedReader(new FileReader(file));
-				String line = null;
-				int lineCounter = 0;
-				while((line = reader.readLine()) != null) { 
-					if(lineCounter==1) {
-						String[] tokens = line.split(",");
-						rgb.red = Integer.parseInt(tokens[0]);
-						rgb.green = Integer.parseInt(tokens[1]);
-						rgb.blue = Integer.parseInt(tokens[2]);
-						setNewValues();
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showSaveDialog(frame);
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				try {
+					BufferedReader reader = new BufferedReader(new FileReader(file));
+					String line = null;
+					int lineCounter = 0;
+					while((line = reader.readLine()) != null) { 
+						if(lineCounter==1) { //skip first line "R,G,B"
+							String[] tokens = line.split(",");
+							rgb.setRed(Integer.parseInt(tokens[0]));
+							rgb.setGreen(Integer.parseInt(tokens[1]));
+							rgb.setBlue(Integer.parseInt(tokens[2]));
+							setNewValues();
+						}
+						lineCounter++;
 					}
-					lineCounter++;
+					reader.close();
+				} catch(IOException ex) {
+					ex.printStackTrace();
 				}
-				reader.close();
-			} catch(IOException ex) {
-				ex.printStackTrace();
 			}
 		}
 	}
 	
 	private void setNewValues() {
-		fieldR.setText(Integer.toString(rgb.red));
-		fieldG.setText(Integer.toString(rgb.green));
-		fieldB.setText(Integer.toString(rgb.blue));
-		sliderR.setValue(rgb.red);
-		sliderG.setValue(rgb.green);
-		sliderB.setValue(rgb.blue);
-		colorPanel.setBackground(new Color(rgb.red, rgb.green, rgb.blue));
+		fieldR.setText(Integer.toString(rgb.getRed()));
+		fieldG.setText(Integer.toString(rgb.getGreen()));
+		fieldB.setText(Integer.toString(rgb.getBlue()));
+		sliderR.setValue(rgb.getRed());
+		sliderG.setValue(rgb.getGreen());
+		sliderB.setValue(rgb.getBlue());
+		colorPanel.setBackground(new Color(rgb.getRed(), rgb.getGreen(), rgb.getBlue()));
 	}
 }
