@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -205,6 +206,9 @@ public class RgbColorSelector implements Serializable {
 	public class SaveObjectListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
 			JFileChooser fc = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(
+					"Java Serialized Object Files", "ser");
+			fc.setFileFilter(filter);
 			int returnVal = fc.showSaveDialog(frame);
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
@@ -222,6 +226,9 @@ public class RgbColorSelector implements Serializable {
 	class OpenObjectListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
 			JFileChooser fc = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(
+					"Java Serialized Object Files", "ser");
+			fc.setFileFilter(filter);
 			int returnVal = fc.showOpenDialog(frame);
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
@@ -239,6 +246,9 @@ public class RgbColorSelector implements Serializable {
 	class SaveTextListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
 			JFileChooser fc = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(
+					"CSV Files", "csv");
+			fc.setFileFilter(filter);
 			int returnVal = fc.showSaveDialog(frame);
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
@@ -257,6 +267,9 @@ public class RgbColorSelector implements Serializable {
 	class OpenTextListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
 			JFileChooser fc = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(
+					"CSV Files", "csv");
+			fc.setFileFilter(filter);
 			int returnVal = fc.showSaveDialog(frame);
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
