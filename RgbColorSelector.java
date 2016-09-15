@@ -209,6 +209,7 @@ public class RgbColorSelector implements Serializable {
 			FileNameExtensionFilter filter = new FileNameExtensionFilter(
 					"Java Serialized Object Files", "ser");
 			fc.setFileFilter(filter);
+			fc.setSelectedFile(new File("myfile.ser"));
 			int returnVal = fc.showSaveDialog(frame);
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
@@ -249,6 +250,7 @@ public class RgbColorSelector implements Serializable {
 			FileNameExtensionFilter filter = new FileNameExtensionFilter(
 					"CSV Files", "csv");
 			fc.setFileFilter(filter);
+			fc.setSelectedFile(new File("myfile.csv"));
 			int returnVal = fc.showSaveDialog(frame);
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
