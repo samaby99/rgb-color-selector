@@ -61,7 +61,7 @@ public class RgbColorSelector implements Serializable {
 		JMenu menuSave = new JMenu("Save");
 		JMenuItem saveObjectMenuItem = new JMenuItem("Save as object (.ser)");
 		saveObjectMenuItem.addActionListener(new SaveObjectListener());
-		JMenuItem saveTextMenuItem = new JMenuItem("Save as text (.txt)");
+		JMenuItem saveTextMenuItem = new JMenuItem("Save as text (.csv)");
 		saveTextMenuItem.addActionListener(new SaveTextListener());
 		menuSave.add(saveObjectMenuItem);
 		menuSave.add(saveTextMenuItem);
@@ -69,7 +69,7 @@ public class RgbColorSelector implements Serializable {
 		JMenu menuOpen = new JMenu("Open");
 		JMenuItem openObjectMenuItem = new JMenuItem("Open .ser file");
 		openObjectMenuItem.addActionListener(new OpenObjectListener());
-		JMenuItem openTextMenuItem = new JMenuItem("Open .txt file");
+		JMenuItem openTextMenuItem = new JMenuItem("Open .csv file");
 		openTextMenuItem.addActionListener(new OpenTextListener());
 		menuOpen.add(openObjectMenuItem);
 		menuOpen.add(openTextMenuItem);
@@ -125,8 +125,6 @@ public class RgbColorSelector implements Serializable {
 		errorOutput.setFont(new Font("Serif", Font.PLAIN, 11));
 		errorOutput.setForeground(Color.RED);
 		
-		// add panels 1, 2, 3, 4 to contentPanel 
-// 		contentPanel.add(buttonPanel);
 		contentPanel.add(colorPanel);
 		contentPanel.add(panelR);
 		contentPanel.add(panelG);
@@ -224,13 +222,7 @@ public class RgbColorSelector implements Serializable {
 			try {
 				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 				rgb = (Rgb) ois.readObject();
-				fieldR.setText(Integer.toString(rgb.red));
-				fieldG.setText(Integer.toString(rgb.green));
-				fieldB.setText(Integer.toString(rgb.blue));
-				sliderR.setValue(rgb.red);
-				sliderG.setValue(rgb.green);
-				sliderB.setValue(rgb.blue);
-				colorPanel.setBackground(new Color(rgb.red, rgb.green, rgb.blue));
+				setNewValues();
 			} catch(Exception ex) {
 				ex.printStackTrace();
 			}
@@ -263,17 +255,12 @@ public class RgbColorSelector implements Serializable {
 				String line = null;
 				int lineCounter = 0;
 				while((line = reader.readLine()) != null) { 
-					if(lineCounter == 1) {
+					if(lineCounter==1) {
+						String[] tokens = line.split(",");
 						rgb.red = Integer.parseInt(tokens[0]);
 						rgb.green = Integer.parseInt(tokens[1]);
 						rgb.blue = Integer.parseInt(tokens[2]);
-						fieldR.setText(Integer.toString(rgb.red));
-						fieldG.setText(Integer.toString(rgb.green));
-						fieldB.setText(Integer.toString(rgb.blue));
-						sliderR.setValue(rgb.red);
-						sliderG.setValue(rgb.green);
-						sliderB.setValue(rgb.blue);
-						colorPanel.setBackground(new Color(rgb.red, rgb.green, rgb.blue));
+						setNewValues();
 					}
 					lineCounter++;
 				}
@@ -282,5 +269,15 @@ public class RgbColorSelector implements Serializable {
 				ex.printStackTrace();
 			}
 		}
+	}
+	
+	private void setNewValues() {
+		fieldR.setText(Integer.toString(rgb.red));
+		fieldG.setText(Integer.toString(rgb.green));
+		fieldB.setText(Integer.toString(rgb.blue));
+		sliderR.setValue(rgb.red);
+		sliderG.setValue(rgb.green);
+		sliderB.setValue(rgb.blue);
+		colorPanel.setBackground(new Color(rgb.red, rgb.green, rgb.blue));
 	}
 }
