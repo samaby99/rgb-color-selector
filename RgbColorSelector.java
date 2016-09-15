@@ -25,6 +25,10 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 public class RgbColorSelector implements Serializable {
 
@@ -48,7 +52,7 @@ public class RgbColorSelector implements Serializable {
 		rgb = new Rgb();
 		frame = new JFrame("RGB Color Selector");
 		
-		// 0. contentPanel - ueberpanel, containes other panels
+		// 0. contentPanel - main panel, containes other panels
 		JPanel contentPanel = new JPanel();
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
@@ -58,6 +62,7 @@ public class RgbColorSelector implements Serializable {
 		JMenuItem saveObjectMenuItem = new JMenuItem("Save as object (.ser)");
 		saveObjectMenuItem.addActionListener(new SaveObjectListener());
 		JMenuItem saveTextMenuItem = new JMenuItem("Save as text (.txt)");
+		saveTextMenuItem.addActionListener(new SaveTextListener());
 		menuSave.add(saveObjectMenuItem);
 		menuSave.add(saveTextMenuItem);
 		
@@ -65,6 +70,7 @@ public class RgbColorSelector implements Serializable {
 		JMenuItem openObjectMenuItem = new JMenuItem("Open .ser file");
 		openObjectMenuItem.addActionListener(new OpenObjectListener());
 		JMenuItem openTextMenuItem = new JMenuItem("Open .txt file");
+		openTextMenuItem.addActionListener(new OpenTextListener());
 		menuOpen.add(openObjectMenuItem);
 		menuOpen.add(openTextMenuItem);
 		
@@ -143,15 +149,15 @@ public class RgbColorSelector implements Serializable {
 	}
 	
 	class SliderListener implements ChangeListener {
-		public void stateChanged(ChangeEvent e) {
-			JSlider source = (JSlider)e.getSource();
+		public void stateChanged(ChangeEvent ev) {
+			JSlider source = (JSlider)ev.getSource();
 			if(source == sliderR) {
 				rgb.red = source.getValue();
 				fieldR.setText(Integer.toString(rgb.red));
-			} else if(e.getSource() == sliderG) {
+			} else if(ev.getSource() == sliderG) {
 				rgb.green = source.getValue();
 				fieldG.setText(Integer.toString(rgb.green));
-			} else if(e.getSource() == sliderB) {
+			} else if(ev.getSource() == sliderB) {
 				rgb.blue = source.getValue();
 				fieldB.setText(Integer.toString(rgb.blue));
 			}
@@ -161,8 +167,8 @@ public class RgbColorSelector implements Serializable {
 	}
 	
 	class FieldListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			JTextField source = (JTextField)e.getSource();
+		public void actionPerformed(ActionEvent ev) {
+			JTextField source = (JTextField)ev.getSource();
 			String input = source.getText();
 			// check whether input is an integer between 0 and 255
 			if(input.matches("^\\d{1,3}$") && Integer.parseInt(input) >= 0 
@@ -210,7 +216,7 @@ public class RgbColorSelector implements Serializable {
 	}
 
 	class OpenObjectListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent ev) {
 			JFileChooser fileOpen = new JFileChooser();
 			fileOpen.showOpenDialog(frame);
 			File file = fileOpen.getSelectedFile();
@@ -231,15 +237,50 @@ public class RgbColorSelector implements Serializable {
 		}
 	}
 	
-// 	class SaveTextListener implements ActionListener {
-// 		public void actionPerformed(ActionEvent e) {
-// 
-// 		}
-// 	}
-// 	
-// 	class LoadTextListener implements ActionListener {
-// 		public void actionPerformed(ActionEvent e) {
-// 
-// 		}
-// 	}
+	class SaveTextListener implements ActionListener {
+		public void actionPerformed(ActionEvent ev) {
+			JFileChooser fileSave = new JFileChooser();
+			fileSave.showSaveDialog(frame);
+			File file = fileSave.getSelectedFile();
+			try {
+				BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+				writer.write("R,G,B\n");
+				writer.write(rgb.red + "," + rgb.green + "," + rgb.blue);
+				writer.close();
+			} catch(IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	class OpenTextListener implements ActionListener {
+		public void actionPerformed(ActionEvent ev) {
+			JFileChooser fileOpen = new JFileChooser();
+			fileOpen.showSaveDialog(frame);
+			File file = fileOpen.getSelectedFile();
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(file));
+				String line = null;
+				int lineCounter = 0;
+				while((line = reader.readLine()) != null) { 
+					if(lineCounter == 1) {
+						rgb.red = Integer.parseInt(tokens[0]);
+						rgb.green = Integer.parseInt(tokens[1]);
+						rgb.blue = Integer.parseInt(tokens[2]);
+						fieldR.setText(Integer.toString(rgb.red));
+						fieldG.setText(Integer.toString(rgb.green));
+						fieldB.setText(Integer.toString(rgb.blue));
+						sliderR.setValue(rgb.red);
+						sliderG.setValue(rgb.green);
+						sliderB.setValue(rgb.blue);
+						colorPanel.setBackground(new Color(rgb.red, rgb.green, rgb.blue));
+					}
+					lineCounter++;
+				}
+				reader.close();
+			} catch(IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
 }
