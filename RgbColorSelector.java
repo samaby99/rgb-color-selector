@@ -130,7 +130,7 @@ public class RgbColorSelector implements Serializable {
 		errorOutput = new JLabel(" ");
 		errorOutput.setFont(new Font("Serif", Font.PLAIN, 11));
 		errorOutput.setForeground(Color.RED);
-		
+
 		contentPanel.add(colorPanel);
 		contentPanel.add(panelR);
 		contentPanel.add(panelG);
@@ -195,7 +195,7 @@ public class RgbColorSelector implements Serializable {
 				} else if(source == fieldB) {
 					sliderB.setValue(0);
 				}
-				errorOutput.setText("Input must be between 0 and 255!");
+				errorOutput.setText("Must be integer between 0 and 255.");
 				source.setBackground(Color.RED);
 			}
 		}
